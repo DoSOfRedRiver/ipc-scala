@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package models;
+
+import "google/protobuf/empty.proto";
+
+message Ping {
+    uint32 id = 1;
+}
+
+message Pong {
+    uint32 id = 1;
+}
+
+message User {
+    string name = 1;
+}
+
+message UserProfile {
+    uint64 id       = 1;
+    string name     = 2;
+    string surname  = 3;
+}
+
+service PingService {
+    rpc SendPing (Ping) returns (Pong) {}
+}
+
+service RetrieveService {
+    rpc GetUserInfo     (User)                  returns (UserProfile) {}
+    rpc LastUserInfo    (google.protobuf.Empty) returns (UserProfile) {}
+}
