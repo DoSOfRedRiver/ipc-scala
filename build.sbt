@@ -1,3 +1,4 @@
+import com.typesafe.sbt.packager.docker.ExecCmd
 name := "ipc-scala"
 
 version := "1.0"
@@ -19,14 +20,27 @@ libraryDependencies ++= Seq(
   "com.chuusai"                 %%  "shapeless"                     % "2.3.3",
   "com.thesamet.scalapb"        %%  "scalapb-runtime"               % scalapb.compiler.Version.scalapbVersion % "protobuf",
   "com.thesamet.scalapb"        %%  "scalapb-runtime-grpc"          % scalapb.compiler.Version.scalapbVersion,
-  //"com.thesamet.scalapb"        %%  "scalapb-runtime"               % scalapb.compiler.Version.scalapbVersion,
+  "com.github.mpilquist"        %% "simulacrum"                     % "0.14.0"
 )
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.8")
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0-M4")
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
+enablePlugins(JmhPlugin)
 enablePlugins(DockerPlugin)
 enablePlugins(JavaAppPackaging)
+enablePlugins(ScalafmtPlugin)
 
-//dockerBaseImage in Docker := "openjdk:11-jre-slim"
+dockerBaseImage := "openjdk:11-jre-slim"
+mappings in Universal += file("target/scala-2.12/ipc-sca`la_2.12-1.0-jmh.jar") -> "ipc-bench.jar"
+mappings in Universal += file("test.txt") -> "/opt/bin/test.txt"
+
 packageName := "ipc-scala"
+scalafmtOnCompile := true
+//dockerEntrypoint := Seq("java", "-jar", "ipc-bench.jar")
+
+dockerCommands := Seq(
+  ExecCmd("RUN", "apt", "update"),
+  ExecCmd("RUN", "apt", "install", "sbt"),
+)

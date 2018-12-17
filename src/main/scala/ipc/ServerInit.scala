@@ -10,12 +10,10 @@ import io.netty.channel.unix.DomainSocketAddress
 
 case class Groups(bossGroup: EpollEventLoopGroup, workerGroup: EpollEventLoopGroup)
 
-
-
 class ServerInit[F[_]: Sync](services: List[ServerServiceDefinition], addr: String) {
   val sock = new DomainSocketAddress(addr)
 
-  def serverBootstrap(groups: Groups): F[Server] = {
+  def serverBootstrap(groups: Groups): F[Server] =
     Sync[F].delay {
       val builder = NettyServerBuilder
         .forAddress(sock)
@@ -28,11 +26,9 @@ class ServerInit[F[_]: Sync](services: List[ServerServiceDefinition], addr: Stri
 
       builder.build()
     }
-  }
 
-  def initGroups: F[Groups] = {
+  def initGroups: F[Groups] =
     Sync[F].delay(Groups(new EpollEventLoopGroup(), new EpollEventLoopGroup()))
-  }
 
   def shutdownGroups(groups: Groups): F[Unit] = Sync[F].delay {
     groups.workerGroup.shutdownGracefully()
@@ -43,8 +39,13 @@ class ServerInit[F[_]: Sync](services: List[ServerServiceDefinition], addr: Stri
     import Resource.{liftF => liftRes}
 
     for {
-      groups            <- Resource.make(initGroups)(shutdownGroups)
-      bootstrap         <- liftRes(serverBootstrap(groups))
+      groups    <- Resource.make(initGroups)(shutdownGroups)
+      bootstrap <- liftRes(serverBootstrap(groups))
     } yield bootstrap
   }
+}
+
+object ServerInit {
+  def apply[F[_]: Sync](services: List[ServerServiceDefinition], addr: String): ServerInit[F] =
+    new ServerInit[F](services, addr)
 }

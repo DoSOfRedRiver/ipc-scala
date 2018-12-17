@@ -1,11 +1,12 @@
-import cats.effect.IO
+import cats.effect.{IO, Sync}
 
 import scala.io.StdIn.readLine
+import scala.language.higherKinds
 
 package object ipc {
-  def putStrLn(msg: String): IO[Unit] = {
-    IO.delay(println(msg))
-  }
+  def putStrLn[F[_]: Sync](msg: String): F[Unit] =
+    Sync[F].delay(println(msg))
 
-  def readLn: IO[String] = IO.delay(readLine())
+  def readLn[F[_]: Sync]: F[String] =
+    Sync[F].delay(readLine())
 }

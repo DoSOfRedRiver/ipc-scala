@@ -13,7 +13,9 @@ class SimpleRetrieve extends RetrieveServiceGrpc.RetrieveService {
   override def getUserInfo(request: User): Future[UserProfile] = {
     val res = request.name match {
       case "Donald" => UserProfile(1, request.name, "Trump")
-      case "John" => UserProfile(2, request.name, "Doe")
+      case "John"   => UserProfile(2, request.name, "Doe")
+      case "Kevin"  => UserProfile(3, request.name, "Smith")
+      case "Bernie" => UserProfile(4, request.name, "sanders")
     }
 
     lastExpr.set(res)
