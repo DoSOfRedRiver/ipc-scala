@@ -79,6 +79,7 @@ object Main extends IOApp {
         val pingService    = PingServiceGrpc.bindService(new SimplePing, ex)
 
         val services = List(retriveService, pingService)
+        println(args)
         ServerInit[IO](services, args(0)).init.use(serverLoop)
       }
 
