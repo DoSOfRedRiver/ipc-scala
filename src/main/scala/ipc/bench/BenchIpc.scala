@@ -17,8 +17,11 @@ import scala.concurrent.ExecutionContext
 import scala.util.Random
 @State(Scope.Benchmark)
 class BenchState { state =>
-  val ioEx = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(4))
-  val ex   = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(4))
+  val executor1 = Executors.newFixedThreadPool(4)
+  val executor2 = Executors.newFixedThreadPool(4)
+
+  val ioEx = ExecutionContext.fromExecutor(executor1)
+  val ex   = ExecutionContext.fromExecutor(executor2)
 
   implicit val cs = IO.contextShift(ioEx)
 
@@ -58,7 +61,7 @@ class BenchState { state =>
               state.releaseServer = releaseS
               state.releaseClient = releaseC
             }
-        _   <- IO.delay(serverLoop(server)).start
+        _   <- serverLoop(server).start
         exe <- clientLoop(client)
         _   <- IO.delay(state.exe = exe)
       } yield ()
@@ -72,6 +75,8 @@ class BenchState { state =>
       for {
         _ <- releaseClient
         _ <- releaseServer
+        _ <- IO.delay(executor1.shutdown())
+        _ <- IO.delay(executor2.shutdown())
       } yield ()
 
     p.unsafeRunSync()
@@ -87,6 +92,6 @@ class BenchIpc {
 
     val name = names(Random.nextInt(names.length))
 
-    state.exe.retrieve(name)
+    state.exe.retrieve(name).unsafeRunSync()
   }
 }
