@@ -16,6 +16,7 @@ class SimpleRetrieve extends RetrieveServiceGrpc.RetrieveService {
       case "John"   => UserProfile(2, request.name, "Doe")
       case "Kevin"  => UserProfile(3, request.name, "Smith")
       case "Bernie" => UserProfile(4, request.name, "sanders")
+      case _        => null
     }
 
     lastExpr.set(res)

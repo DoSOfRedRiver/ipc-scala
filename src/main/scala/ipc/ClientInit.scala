@@ -5,6 +5,7 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import io.grpc.Channel
 import io.grpc.netty.NettyChannelBuilder
+import io.netty.channel.MultithreadEventLoopGroup
 import io.netty.channel.epoll.{EpollDomainSocketChannel, EpollEventLoopGroup}
 import io.netty.channel.unix.DomainSocketAddress
 
@@ -13,7 +14,7 @@ class ClientInit[F[_]: Sync](addr: String) {
     group => Sync[F].delay(group.shutdownGracefully())
   )
 
-  def clientBootstrap(group: EpollEventLoopGroup): F[Channel] = Sync[F].delay {
+  def clientBootstrap(group: MultithreadEventLoopGroup): F[Channel] = Sync[F].delay {
     val sock = new DomainSocketAddress(addr)
 
     NettyChannelBuilder
